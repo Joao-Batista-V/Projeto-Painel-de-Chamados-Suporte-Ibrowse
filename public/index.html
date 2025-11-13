@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Chamados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; }
+        ::placeholder { color: #9ca3af; }
+        .highlight-text { color: #004d40; }
+        .button-primary { background-color: #00695c; color: white; transition: background-color 0.3s ease; }
+        .button-primary:hover { background-color: #004d40; }
+        .button-secondary { background-color: #e5e7eb; color: #374151; transition: background-color 0.3s ease; }
+        .button-secondary:hover { background-color: #d1d5db; }
+
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #00695c; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #app-container { display: flex; height: 100vh; }
+        #sidebar { width: 250px; background-color: #fff; border-right: 1px solid #e5e7eb; padding: 24px; display: flex; flex-direction: column; transition: width 0.3s ease; }
+        #main-content { flex: 1; overflow-y: auto; padding: 24px; }
+        
+        .sidebar-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+        .sidebar-logo i { color: #004d40; }
+        .nav-button { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; width: 100%; }
+        .nav-button.active { background-color: #e0f2f1; color: #004d40; }
+        .nav-button:not(.active) { color: #374151; }
+        .nav-button:not(.active):hover { background-color: #f3f4f6; }
+        #user-profile { margin-top: auto; border-top: 1px solid #e5e7eb; padding-top: 16px; display: flex; align-items: center; gap: 8px; }
+        #user-profile img { width: 40px; height: 40px; border-radius: 50%; }
+        #user-profile-name { font-weight: 600; font-size: 0.875rem; }
+        #logout-button { background: none; border: none; color: #6b7280; cursor: pointer; margin-left: auto; padding: 4px; }
+        #logout-button:hover { color: #1f2937; }
+
+        #login-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-box { background: white; padding: 48px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center; }
+        
+        th, td { text-align: center; padding: 12px 16px; white-space: nowrap; }
+        thead th { background-color: #f9fafb; }
+        
+        @media (max-width: 640px) { 
+            td { white-space: normal; }
+        }
+        
+        .status-checkbox.verificando { color: #d97706; }
+        .status-checkbox.finalizado { color: #059669; }
+        
+        .admin-list-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px; text-align: left; }
+        .admin-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; }
+        .admin-submit-btn { background-color: #00695c; color: white; padding: 8px 12px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; }
+        .admin-submit-btn:hover { background-color: #004d40; }
+
+        .admin-toggle-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .admin-toggle-btn.enabled { 
+            background: #fee2e2; color: #b91c1c; 
+        }
+        .admin-toggle-btn.enabled:hover { background: #fecaca; }
+        .admin-toggle-btn.disabled { 
+            background: #d1fae5; color: #065f46;
+        }
+        .admin-toggle-btn.disabled:hover { background: #a7f3d0; }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 16px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-weight: 500; transition: all 0.3s ease; opacity: 0; transform: translateX(100%); animation: toast-in 0.5s forwards; }
+        .toast.success { background-color: #d1fae5; color: #065f46; }
+        .toast.error { background-color: #fee2e2; color: #991b1b; }
+        @keyframes toast-in { to { opacity: 1; transform: translateX(0); } }
+
+        .modal-overlay-base { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 5000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay-base.visible { opacity: 1; pointer-events: all; }
+        .modal-box-base { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay-base.visible .modal-box-base { transform: scale(1); }
+        .modal-title-base { font-size: 1.125rem; font-weight: 600; margin-bottom: 8px; }
+        .modal-message-base { font-size: 0.875rem; color: #4b5563; margin-bottom: 16px; }
+        .modal-buttons-base { display: flex; justify-content: flex-end; gap: 8px; }
+        .modal-button { padding: 8px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; }
+        
+        #modal-btn-cancel { background-color: #e5e7eb; color: #374151; }
+        #modal-btn-confirm { background-color: #dc2626; color: white; }
+
+        .habilitar-chamado-checkbox {
+            color: #00695c;
+        }
+        .habilitar-chamado-checkbox:disabled {
+            color: #9ca3af;
+            background-color: #f3f4f6;
+        }
+        
+        .glpi-link {
+            color: #00695c;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .glpi-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="login-screen">
+        <div class="login-box">
+            <i data-lucide="bar-chart-3" class="highlight-text mb-4" style="width: 48px; height: 48px;"></i>
+            <h2 class="text-2xl font-bold mb-2">Painel de Chamados</h2>
+            <p class="text-gray-500 mb-6">Faça login com sua conta Google para continuar.</p>
+            <button id="login-button" class="button-primary w-full py-2.5 rounded-lg flex items-center justify-center gap-2">
+                <i data-lucide="log-in" style="width: 18px; height: 18px;"></i>
+                Entrar com Google
+            </button>
+            <p id="login-error-message" class="text-red-600 text-sm mt-4 hidden"></p>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden">
+
+        <aside id="sidebar">
+            <div class="sidebar-logo">
+                <i data-lucide="bar-chart-3" class="highlight-text" style="width: 32px; height: 32px;"></i>
+                <h1 class="text-xl font-bold">Painel</h1>
+            </div>
+            
+            <nav class="flex flex-col gap-2">
+                <button id="nav-btn-geral" class="nav-button active">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Visão Geral</span>
+                </button>
+                <button id="nav-btn-tecnico" class="nav-button">
+                    <i data-lucide="clipboard-check"></i>
+                    <span>Meus Chamados</span>
+                </button>
+                <button id="nav-btn-admin" class="nav-button">
+                    <i data-lucide="settings"></i>
+                    <span>Configurações</span>
+                </button>
+            </nav>
+
+            <div id="user-profile">
+                <img id="user-avatar" src="https://placehold.co/40x40/e0f2f1/004d40?text=U" alt="Avatar">
+                <div>
+                    <div id="user-profile-name" class="highlight-text">Usuário</div>
+                    <div id="user-profile-email" class="text-xs text-gray-500">email@exemplo.com</div>
+                </div>
+                <button id="logout-button" title="Sair">
+                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main id="main-content">
+            
+            <div id="loading-overlay" style="position: absolute; display: flex;">
+                <div class="loader"></div>
+                <p class="ml-4 text-lg font-semibold highlight-text">Conectando e carregando dados...</p>
+            </div>
+            
+            <div id="page-geral" style="display: none;"> <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg border border-gray-200 self-start">
+                        <h2 class="text-xl font-semibold mb-4 highlight-text">Registrar Novo Chamado</h2>
+                        <form id="form-registro-chamado" class="space-y-4">
+                            <div>
+                                <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
+                                <select id="categoria" name="categoria" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700 sm:text-sm">
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="ticket-glpi" class="block text-sm font-medium text-gray-700">Ticket GLPI (Opcional)</label>
+                                <input type="text" id="ticket-glpi" name="ticket-glpi" inputmode="numeric" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700 sm:text-sm" placeholder="123456">
+                            </div>
+                            
+                            <div class="border-t pt-4">
+                                <label for="select-proximo-tecnico" class="block text-sm font-medium text-gray-700">Atribuir para (Sugestão):</label>
+                                <select id="select-proximo-tecnico" name="proximo-tecnico" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-700 focus:border-green-700 sm:text-sm">
+                                </select>
+                            </div>
+                            <button type="submit" id="submit-button" class="w-full button-primary font-semibold py-2.5 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700">
+                                Registrar e Atribuir
+                            </button>
+                            <p id="error-message" class="text-red-600 text-sm hidden"></p>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-10 self-start">
+                        <div>
+                            <h2 class="text-xl font-semibold mb-6 highlight-text">Contabilidade de Chamados</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center shadow-sm">
+                                    <p class="text-sm font-medium text-gray-500">Hoje</p>
+                                    <p id="kpi-hoje" class="text-4xl font-bold highlight-text">0</p>
+                                </div>
+                                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center shadow-sm">
+                                    <p class="text-sm font-medium text-gray-500">Esta Semana</p>
+                                    <p id="kpi-semana" class="text-4xl font-bold highlight-text">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Performance Semanal</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <h4 class="font-medium text-center text-sm text-gray-600 mb-2">Chamados por Categoria</h4>
+                                    <canvas id="category-pie-chart"></canvas>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <h4 class="font-medium text-center text-sm text-gray-600 mb-2">Chamados por Técnico</h4>
+                                    <canvas id="technician-bar-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Contagem por Categoria - Semanal</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200" id="tabela-categorias">
+                                <thead id="tabela-categorias-head" class="bg-gray-100"></thead>
+                                <tbody id="tabela-categorias-body" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Últimos Chamados Registrados (Semana)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200" id="tabela-ultimos-chamados">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Técnico</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket GLPI</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Horário</th>
+                                        <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Habilitado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-ultimos-chamados-body" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div> <div id="page-tecnico" class="hidden">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6">
+                    <h2 class="text-xl font-semibold highlight-text">Painel do Técnico: Meus Chamados</h2>
+                    <p class="text-gray-600">Olá, <strong id="tecnico-nome" class="highlight-text">Técnico</strong>. Estes são seus chamados atribuídos.</p>
+                    
+                    <div id="tecnico-warning" class="hidden p-4 rounded-md bg-yellow-50 text-yellow-700 border border-yellow-200">
+                        <strong>Atenção:</strong> Seu nome de usuário Google (<span id="google-display-name" class="font-bold"></span>) não está na lista de técnicos cadastrados. Peça a um administrador para adicioná-lo na aba 'Configurações' com este nome exato para ver seus chamados.
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="tabela-meus-chamados">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket GLPI</th>
+                                    <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-meus-chamados-body" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <div id="page-admin" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-4">
+                        <h2 class="text-xl font-semibold highlight-text">Gerenciar Técnicos</h2>
+                        <p class="text-sm text-gray-500">Adicione técnicos. O nome deve ser <strong>exatamente</strong> igual ao nome do perfil Google.</p>
+                        <form id="form-add-tecnico" class="flex gap-2">
+                            <input type="text" id="input-tecnico-nome" placeholder="Nome do novo técnico" class="admin-input flex-1" required>
+                            <button type="submit" class="admin-submit-btn">Adicionar</button>
+                        </form>
+                        <ul id="list-tecnicos" class="admin-list mt-4 space-y-2"></ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-4">
+                        <h2 class="text-xl font-semibold highlight-text">Gerenciar Categorias</h2>
+                        <form id="form-add-categoria" class="flex gap-2">
+                            <input type="text" id="input-categoria-nome" placeholder="Nome da nova categoria" class="admin-input flex-1" required>
+                            <button type="submit" class="admin-submit-btn">Adicionar</button>
+                        </form>
+                        <ul id="list-categorias" class="admin-list mt-4 space-y-2"></ul>
+                    </div>
+
+                </div>
+                </div>
+        </main>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay-base hidden">
+        <div id="modal-box" class="modal-box-base">
+            <h3 id="modal-title" class="modal-title-base">Confirmar Ação</h3>
+            <p id="modal-message" class="modal-message-base">Tem certeza?</p>
+            <div id="modal-buttons" class="modal-buttons-base">
+                <button id="modal-btn-cancel" class="modal-button button-secondary">Cancelar</button>
+                <button id="modal-btn-confirm" class="modal-button confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth, onAuthStateChanged, setPersistence,
+            GoogleAuthProvider, signInWithPopup, signOut,
+            browserLocalPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore, collection, addDoc, onSnapshot, Timestamp,
+            setLogLevel, doc, deleteDoc, updateDoc, query, orderBy
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Configuração ---
+        setLogLevel('Debug');
+        
+        // =======================================================================
+        // !! COLE SUA CONFIGURAÇÃO REAL DO FIREBASE AQUI !!
+        // =======================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBp1gA9ADex0LDGZ3gLRzaj6mDd186IszI",
+            authDomain: "painel-de-chamados-suporte.firebaseapp.com",
+            projectId: "painel-de-chamados-suporte",
+            storageBucket: "painel-de-chamados-suporte.firebasestorage.app",
+            messagingSenderId: "141759717510",
+            appId: "1:141759717510:web:31442ac5e56a46d886b107",
+            measurementId: "G-1RJHJ6VY14"
+        };
+        // =======================================================================
+        
+        const glpiBaseUrl = "https://glpi.sie.sc.gov.br/helpdesk/front/ticket.form.php?id=";
+        
+        // --- Estado da Aplicação ---
+        let db, auth;
+        let currentUser = null;
+        let allChamados = [];
+        let techniciansList = [];
+        let categoriesList = [];
+        let chamadosCollectionRef;
+        let tecnicosCollectionRef;
+        let categoriasCollectionRef;
+
+        let isChamadosLoaded = false;
+        let isTecnicosLoaded = false;
+        let isCategoriasLoaded = false;
+        
+        let categoryPieChart = null;
+        let technicianBarChart = null;
+
+        // --- Elementos do DOM ---
+        let loginScreen, appContainer, loginButton, logoutButton, userAvatar, userNameEl, userEmailEl;
+        let loadingOverlay, form, categoriaEl, selectProximoTecnicoEl, submitButton, errorMessageEl;
+        let kpiHojeEl, kpiSemanaEl, tabelaUltimosChamadosBody, tabelaCategoriasHead, tabelaCategoriasBody;
+        let pageGeral, pageTecnico, pageAdmin, navBtnGeral, navBtnTecnico, navBtnAdmin;
+        let tecnicoNomeEl, tabelaMeusChamadosBody, tecnicoWarning, googleDisplayName;
+        let formAddTecnico, inputTecnicoNome, listTecnicos, formAddCategoria, inputCategoriaNome, listCategorias;
+        let toastContainer, modalOverlay, modalTitle, modalMessage, modalBtnCancel, modalBtnConfirm;
+        let loginErrorMessageEl;
+        let ticketGlpiEl;
+
+
+        // --- Funções Auxiliares de Data ---
+        function getStartOfDay(date = new Date()) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+        function getStartOfWeek(date = new Date()) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(d.setDate(diff));
+            return new Date(monday.getFullYear(), monday.getMonth(), monday.getDate());
+        }
+
+        // =======================================================================
+        // NOVA FUNÇÃO (Alteração)
+        // Formata nomes como "JOÃO VIEIRA" ou "joão vieira" para "João Vieira"
+        // =======================================================================
+        function toTitleCase(str) {
+            if (!str) return "";
+            return str.toLowerCase().split(' ').map(word => {
+                return (word.charAt(0).toUpperCase() + word.slice(1));
+            }).join(' ');
+        }
+
+        // --- Lógica Principal de Inicialização ---
+        async function initialize() {
+            
+            // Atribui elementos do DOM
+            loginScreen = document.getElementById('login-screen');
+            appContainer = document.getElementById('app-container');
+            loginButton = document.getElementById('login-button');
+            logoutButton = document.getElementById('logout-button');
+            userAvatar = document.getElementById('user-avatar');
+            userNameEl = document.getElementById('user-profile-name');
+            userEmailEl = document.getElementById('user-profile-email');
+            loadingOverlay = document.getElementById('loading-overlay');
+            form = document.getElementById('form-registro-chamado');
+            categoriaEl = document.getElementById('categoria');
+            selectProximoTecnicoEl = document.getElementById('select-proximo-tecnico');
+            submitButton = document.getElementById('submit-button');
+            errorMessageEl = document.getElementById('error-message');
+            kpiHojeEl = document.getElementById('kpi-hoje');
+            kpiSemanaEl = document.getElementById('kpi-semana');
+            tabelaCategoriasHead = document.getElementById('tabela-categorias-head');
+            tabelaCategoriasBody = document.getElementById('tabela-categorias-body');
+            tabelaUltimosChamadosBody = document.getElementById('tabela-ultimos-chamados-body');
+            pageGeral = document.getElementById('page-geral');
+            pageTecnico = document.getElementById('page-tecnico');
+            pageAdmin = document.getElementById('page-admin');
+            navBtnGeral = document.getElementById('nav-btn-geral');
+            navBtnTecnico = document.getElementById('nav-btn-tecnico');
+            navBtnAdmin = document.getElementById('nav-btn-admin');
+            tecnicoNomeEl = document.getElementById('tecnico-nome');
+            tabelaMeusChamadosBody = document.getElementById('tabela-meus-chamados-body');
+            tecnicoWarning = document.getElementById('tecnico-warning');
+            googleDisplayName = document.getElementById('google-display-name');
+            formAddTecnico = document.getElementById('form-add-tecnico');
+            inputTecnicoNome = document.getElementById('input-tecnico-nome');
+            listTecnicos = document.getElementById('list-tecnicos');
+            formAddCategoria = document.getElementById('form-add-categoria');
+            inputCategoriaNome = document.getElementById('input-categoria-nome');
+            listCategorias = document.getElementById('list-categorias');
+            toastContainer = document.getElementById('toast-container');
+            loginErrorMessageEl = document.getElementById('login-error-message');
+            
+            modalOverlay = document.getElementById('modal-overlay');
+            modalTitle = document.getElementById('modal-title');
+            modalMessage = document.getElementById('modal-message');
+            modalBtnCancel = document.getElementById('modal-btn-cancel');
+            modalBtnConfirm = document.getElementById('modal-btn-confirm');
+            
+            ticketGlpiEl = document.getElementById('ticket-glpi');
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                await setPersistence(auth, browserLocalPersistence);
+                
+                console.log("Firebase inicializado. Monitorando autenticação...");
+                
+                lucide.createIcons();
+                setupPersistentUIListeners();
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log("Usuário logado:", user.displayName);
+                        currentUser = user;
+                        showApp();
+                        
+                        chamadosCollectionRef = collection(db, 'chamados');
+                        tecnicosCollectionRef = collection(db, 'tecnicos');
+                        categoriasCollectionRef = collection(db, 'categorias');
+                        
+                        setupLoggedInUIListeners();
+                        setupChamadosListener();
+                        setupTecnicosListener();
+                        setupCategoriasListener();
+                    } else {
+                        console.log("Usuário deslogado.");
+                        currentUser = null;
+                        showLogin();
+                    }
+                });
+            } catch (error) {
+                console.error("Erro na inicialização:", error);
+                loadingOverlay.innerHTML = `<p class="text-red-600 font-bold p-8">Erro na inicialização do Firebase. Verifique o console e suas credenciais.</p>`;
+                loginErrorMessageEl.textContent = "Falha ao inicializar o Firebase. Verifique o console.";
+                loginErrorMessageEl.classList.remove('hidden');
+            }
+        }
+        
+        // --- Funções de Autenticação ---
+        
+        function showLogin() {
+            loginScreen.style.display = 'flex';
+            appContainer.style.display = 'none';
+            loadingOverlay.style.display = 'none';
+        }
+        
+        function showApp() {
+            loginScreen.style.display = 'none';
+            appContainer.style.display = 'flex';
+            loadingOverlay.style.display = 'flex';
+            
+            if (currentUser) {
+                userNameEl.textContent = toTitleCase(currentUser.displayName) || 'Usuário';
+                userEmailEl.textContent = currentUser.email || '';
+                if (currentUser.photoURL) {
+                    userAvatar.src = currentUser.photoURL;
+                }
+            }
+        }
+        
+        async function handleLogin() {
+            loginErrorMessageEl.textContent = '';
+            loginErrorMessageEl.classList.add('hidden');
+            
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Erro detalhado ao fazer login:", error);
+                
+                let userMessage = "Erro desconhecido. Verifique o console.";
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    userMessage = "Login cancelado. A janela pop-up foi fechada.";
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    userMessage = "Login cancelado. (Múltiplos pop-ups abertos)";
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    userMessage = "Erro: Login com Google não está ativado no seu projeto Firebase.";
+                } else if (error.code === 'auth/invalid-api-key') {
+                    userMessage = "Erro: Chave de API (apiKey) inválida no firebaseConfig.";
+                } else if (error.code === 'auth/unauthorized-domain') {
+                     userMessage = "Erro: Este domínio não está autorizado no Firebase (Verifique 'Authentication > Settings > Authorized domains').";
+                } else if (error.code) {
+                    userMessage = `Erro: ${error.code}. Verifique o console.`;
+                }
+                
+                loginErrorMessageEl.textContent = userMessage;
+                loginErrorMessageEl.classList.remove('hidden');
+                showToast("Falha no login. Verifique a mensagem de erro.", "error");
+            }
+        }
+    
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                showToast("Erro ao sair.", "error");
+            }
+        }
+
+        // --- Listeners de Snapshot (Leitura de Dados) ---
+
+        function setupChamadosListener() {
+            if (!chamadosCollectionRef) return;
+            const q = query(chamadosCollectionRef, orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                allChamados = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                isChamadosLoaded = true;
+                checkInitialLoad();
+            }, (error) => {
+                console.error("Erro ao carregar chamados:", error);
+                showToast("Erro ao carregar chamados.", "error");
+            });
+        }
+
+        function setupTecnicosListener() {
+            if (!tecnicosCollectionRef) return;
+            const q = query(tecnicosCollectionRef, orderBy("nome"));
+            onSnapshot(q, (snapshot) => {
+                techniciansList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                populateTechnicianSelects();
+                isTecnicosLoaded = true;
+                checkInitialLoad();
+            }, (error) => {
+                console.error("Erro ao carregar técnicos:", error);
+                showToast("Erro ao carregar técnicos.", "error");
+            });
+        }
+
+        function setupCategoriasListener() {
+            if (!categoriasCollectionRef) return;
+            const q = query(categoriasCollectionRef, orderBy("nome"));
+            onSnapshot(q, (snapshot) => {
+                categoriesList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                populateCategoriaSelect();
+                isCategoriasLoaded = true;
+                checkInitialLoad();
+            }, (error) => {
+                console.error("Erro ao carregar categorias:", error);
+                showToast("Erro ao carregar categorias.", "error");
+            });
+        }
+
+        // --- Listeners de UI (Ações do Usuário) ---
+
+        function setupPersistentUIListeners() {
+            loginButton.addEventListener('click', handleLogin);
+            modalBtnCancel.addEventListener('click', () => modalOverlay.classList.add('hidden'));
+        }
+
+        function setupLoggedInUIListeners() {
+            logoutButton.addEventListener('click', handleLogout);
+            navBtnGeral.addEventListener('click', () => showPage('geral'));
+            navBtnTecnico.addEventListener('click', () => showPage('tecnico'));
+            navBtnAdmin.addEventListener('click', () => showPage('admin'));
+            form.addEventListener('submit', handleRegisterChamado);
+            tabelaMeusChamadosBody.addEventListener('change', handleStatusChange);
+            formAddTecnico.addEventListener('submit', handleAddTecnico);
+            formAddCategoria.addEventListener('submit', handleAddCategoria);
+            
+            tabelaUltimosChamadosBody.addEventListener('change', (e) => {
+                if (e.target.classList.contains('habilitar-chamado-checkbox')) {
+                    handleChamadoToggle(e);
+                }
+            });
+        }
+
+        // --- Handlers de Ações (Escrever Dados) ---
+
+        async function handleAddTecnico(e) {
+            e.preventDefault();
+            const nome = inputTecnicoNome.value.trim();
+            if (nome) {
+                try {
+                    await addDoc(tecnicosCollectionRef, { 
+                        nome: nome,
+                        habilitado: true 
+                    });
+                    inputTecnicoNome.value = '';
+                    showToast("Técnico adicionado com sucesso!", "success");
+                } catch (err) {
+                    console.error("Erro ao adicionar técnico:", err);
+                    showToast("Erro ao salvar técnico.", "error");
+                }
+            }
+        }
+
+        async function handleAddCategoria(e) {
+            e.preventDefault();
+            const nome = inputCategoriaNome.value.trim();
+            if (nome) {
+                try {
+                    await addDoc(categoriasCollectionRef, { 
+                        nome: nome,
+                        habilitado: true 
+                    });
+                    inputCategoriaNome.value = '';
+                    showToast("Categoria adicionada com sucesso!", "success");
+                } catch (err) {
+                    console.error("Erro ao adicionar categoria:", err);
+                    showToast("Erro ao salvar categoria.", "error");
+                }
+            }
+        }
+
+        async function handleAdminToggle(id, collection, currentState) {
+            if (!id || !collection) return;
+            const newState = !currentState;
+            try {
+                await updateDoc(doc(db, collection, id), { 
+                    habilitado: newState 
+                });
+                showToast(newState ? "Item habilitado!" : "Item desabilitado.", "success");
+            } catch (err) {
+                console.error("Erro ao atualizar status do item:", err);
+                showToast("Erro ao atualizar status.", "error");
+            }
+        }
+
+        async function handleRegisterChamado(e) {
+            e.preventDefault();
+            if (!selectProximoTecnicoEl.value || !categoriaEl.value) {
+                showToast("Cadastre técnicos/categorias nas Configurações.", "error");
+                return;
+            }
+            submitButton.disabled = true;
+            submitButton.textContent = "Registrando...";
+            
+            const ticketGlpi = ticketGlpiEl.value.trim();
+            
+            try {
+                const novoChamado = {
+                    categoria: categoriaEl.value,
+                    descricao: "", 
+                    atribuidoPara: selectProximoTecnicoEl.value,
+                    timestamp: Timestamp.now(),
+                    status: "Aberto",
+                    habilitado: true,
+                    ticketGlpi: ticketGlpi || "" 
+                };
+                await addDoc(chamadosCollectionRef, novoChamado);
+                ticketGlpiEl.value = '';
+                showToast("Chamado registrado com sucesso!", "success");
+            } catch (error) {
+                console.error("Erro ao registrar chamado:", error);
+                showToast("Erro ao salvar o chamado.", "error");
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Registrar e Atribuir";
+            }
+        }
+        
+        async function handleChamadoToggle(e) {
+            const checkbox = e.target;
+            const docId = checkbox.dataset.id;
+            if (!docId) return;
+
+            const novoEstadoHabilitado = !checkbox.checked;
+            
+            checkbox.disabled = true;
+            try {
+                await updateDoc(doc(db, 'chamados', docId), { 
+                    habilitado: novoEstadoHabilitado 
+                });
+                showToast(novoEstadoHabilitado ? "Chamado habilitado!" : "Chamado desabilitado.", "success");
+            } catch (err) {
+                console.error("Erro ao atualizar chamado:", err);
+                showToast("Erro ao atualizar chamado.", "error");
+            }
+        }
+
+        async function handleStatusChange(e) {
+            if (!e.target.classList.contains('status-checkbox')) return;
+            const checkbox = e.target;
+            const docId = checkbox.dataset.id;
+            const statusType = checkbox.name;
+            const isChecked = checkbox.checked;
+            const row = checkbox.closest('tr');
+            if (!docId) return;
+
+            let newStatus = 'Aberto';
+            if (isChecked) {
+                if (statusType === 'verificando') {
+                    row.querySelector('input[name="finalizado"]').checked = false;
+                    newStatus = 'Verificando';
+                } else if (statusType === 'finalizado') {
+                    row.querySelector('input[name="verificando"]').checked = false;
+                    newStatus = 'Finalizado';
+                }
+            }
+            
+            row.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = true);
+            try {
+                await updateDoc(doc(db, 'chamados', docId), { status: newStatus });
+                showToast(`Status atualizado para ${newStatus}`, "success");
+            } catch (err) {
+                console.error("Erro ao atualizar status:", err);
+                showToast('Erro ao atualizar status.', "error");
+            }
+        }
+
+        // --- Funções de Atualização de UI ---
+
+        function checkInitialLoad() {
+            if (isChamadosLoaded && isTecnicosLoaded && isCategoriasLoaded) {
+                if (loadingOverlay.style.display !== 'none') {
+                    loadingOverlay.style.display = 'none';
+                    showPage('geral');
+                    console.log("Todos os dados carregados, ocultando overlay.");
+                }
+                triggerAllUpdates();
+            }
+        }
+
+        function triggerAllUpdates() {
+            if (loadingOverlay.style.display === 'none') {
+                updateDashboardGeral();
+                updateDashboardTecnico();
+                updateAdminUI();
+                updateNextTechnician();
+            }
+        }
+
+        function showPage(pageName) {
+            pageGeral.style.display = 'none';
+            pageTecnico.style.display = 'none';
+            pageAdmin.style.display = 'none';
+            navBtnGeral.classList.remove('active');
+            navBtnTecnico.classList.remove('active');
+            navBtnAdmin.classList.remove('active');
+
+            if (pageName === 'geral') {
+                pageGeral.style.display = 'block';
+                navBtnGeral.classList.add('active');
+            } else if (pageName === 'tecnico') {
+                pageTecnico.style.display = 'block';
+                navBtnTecnico.classList.add('active');
+            } else if (pageName === 'admin') {
+                pageAdmin.style.display = 'block';
+                navBtnAdmin.classList.add('active');
+            }
+        }
+
+        function populateTechnicianSelects() {
+            const currentAtribuir = selectProximoTecnicoEl.value;
+            
+            selectProximoTecnicoEl.innerHTML = '';
+            
+            const habilitados = techniciansList.filter(t => t.habilitado !== false);
+            
+            if (habilitados.length === 0) {
+                 const msg = '<option value="">Nenhum técnico habilitado</option>';
+                 selectProximoTecnicoEl.innerHTML = msg;
+            }
+
+            habilitados.forEach(tec => {
+                const option = document.createElement('option');
+                option.value = tec.nome; 
+                option.textContent = toTitleCase(tec.nome); 
+                selectProximoTecnicoEl.appendChild(option.cloneNode(true));
+            });
+
+            selectProximoTecnicoEl.value = currentAtribuir || (habilitados[0]?.nome || '');
+        }
+        
+        function populateCategoriaSelect() {
+            const currentCategoria = categoriaEl.value;
+            categoriaEl.innerHTML = '';
+            
+            const habilitadas = categoriesList.filter(c => c.habilitado !== false);
+            
+            if (habilitadas.length === 0) {
+                 categoriaEl.innerHTML = '<option value="">Nenhuma categoria habilitada</option>';
+            }
+
+            habilitadas.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.nome;
+                option.textContent = cat.nome; 
+                categoriaEl.appendChild(option);
+            });
+            categoriaEl.value = currentCategoria || (habilitadas[0]?.nome || '');
+        }
+
+        function getNextTechnician() {
+            const habilitados = techniciansList.filter(t => t.habilitado !== false);
+            if (allChamados.length === 0 || habilitados.length === 0) return (habilitados[0]?.nome || '');
+            
+            const chamadosHabilitados = allChamados.filter(c => c.habilitado !== false);
+            
+            const ultimoChamadoAberto = chamadosHabilitados.find(c => c.status !== 'Finalizado');
+            const ultimoTecnicoNome = ultimoChamadoAberto ? ultimoChamadoAberto.atribuidoPara : (chamadosHabilitados[0]?.atribuidoPara || '');
+            
+            const ultimoIndex = habilitados.findIndex(t => t.nome === ultimoTecnicoNome);
+            if (ultimoIndex === -1) return (habilitados[0]?.nome || '');
+            
+            const proximoIndex = (ultimoIndex + 1) % habilitados.length;
+            return habilitados[proximoIndex].nome;
+        }
+
+        function updateNextTechnician() {
+            if (techniciansList.length === 0) return;
+            selectProximoTecnicoEl.value = getNextTechnician();
+        }
+
+        function updateDashboardGeral() {
+            const agora = new Date();
+            const inicioHoje = getStartOfDay(agora).getTime();
+            const inicioSemana = getStartOfWeek(agora).getTime();
+
+            const chamadosSemanaCompleta = allChamados.filter(c => c.timestamp.toDate().getTime() >= inicioSemana);
+            
+            const chamadosSemanaHabilitados = chamadosSemanaCompleta.filter(c => c.habilitado !== false);
+            const chamadosHojeHabilitados = allChamados.filter(c => 
+                c.timestamp.toDate().getTime() >= inicioHoje && c.habilitado !== false
+            );
+            
+            kpiHojeEl.textContent = chamadosHojeHabilitados.length;
+            kpiSemanaEl.textContent = chamadosSemanaHabilitados.length;
+            
+            renderCharts(chamadosSemanaHabilitados);
+            
+            // Tabela "Contagem por Categoria - Semanal"
+            tabelaCategoriasHead.innerHTML = '';
+            let headHTML = '<tr><th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Técnico</th>';
+            categoriesList.forEach(cat => {
+                headHTML += `<th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">${cat.nome}</th>`;
+            });
+            headHTML += '<th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Total (Técnico)</th></tr>';
+            tabelaCategoriasHead.innerHTML = headHTML;
+            
+            tabelaCategoriasBody.innerHTML = '';
+            techniciansList.forEach(tec => {
+                const chamadosTecnicoSemana = chamadosSemanaHabilitados.filter(c => c.atribuidoPara === tec.nome);
+                let totalRow = 0;
+                let rowHTML = `<td class="px-6 py-4"><div class="text-sm font-semibold text-gray-900 ${tec.habilitado === false ? 'line-through text-gray-400' : ''}">${toTitleCase(tec.nome)}</div></td>`;
+                categoriesList.forEach(cat => {
+                    const count = chamadosTecnicoSemana.filter(c => c.categoria === cat.nome).length;
+                    rowHTML += `<td class="px-6 py-4 text-sm text-gray-700">${count}</td>`;
+                    totalRow += count;
+                });
+                rowHTML += `<td class="px-6 py-4 text-sm font-bold highlight-text">${totalRow}</td>`;
+                const row = document.createElement('tr');
+                row.innerHTML = rowHTML;
+                tabelaCategoriasBody.appendChild(row);
+            });
+
+            // Tabela "Últimos Chamados Registrados (SEMANA)"
+            tabelaUltimosChamadosBody.innerHTML = '';
+            chamadosSemanaCompleta.forEach(chamado => {
+                const row = document.createElement('tr');
+                const status = chamado.status || 'Aberto';
+                const isFinalizado = status === 'Finalizado';
+                const isHabilitado = chamado.habilitado !== false; 
+                
+                const isStrikethrough = isFinalizado || !isHabilitado;
+                
+                const rowClass = isStrikethrough ? 'line-through bg-gray-50' : '';
+                const tdClass = isStrikethrough ? 'text-gray-400' : 'text-gray-700';
+                const tdClassSemibold = isStrikethrough ? 'text-gray-400' : 'text-gray-900';
+                const tdClassHora = isStrikethrough ? 'text-gray-400' : 'text-gray-500';
+                
+                row.className = rowClass;
+                const hora = chamado.timestamp.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                const isChecked = !isHabilitado; 
+                const isDisabled = isFinalizado;
+                const checkboxTitle = isFinalizado ? 'Chamado finalizado' : (isChecked ? 'Clique para Habilitar' : 'Clique para Desabilitar');
+
+                const ticketId = chamado.ticketGlpi || '';
+                const glpiHtml = ticketId 
+                    ? `<a href="${glpiBaseUrl}${ticketId}" target="_blank" class="glpi-link ${isStrikethrough ? 'text-gray-400' : ''}" title="Abrir ticket ${ticketId} no GLPI">${ticketId}</a>` 
+                    : `<span class="${tdClass} text-gray-400">N/A</span>`;
+
+                row.innerHTML = `
+                    <td class="px-6 py-4"><div class="text-sm font-semibold ${tdClassSemibold}">${toTitleCase(chamado.atribuidoPara)}</div></td>
+                    <td class="px-6 py-4 text-sm ${tdClass}">${chamado.categoria}</td>
+                    <td class="px-6 py-4 text-sm">${glpiHtml}</td>
+                    <td class="px-6 py-4 text-sm ${tdClassHora}">${hora}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center">
+                            <input type="checkbox" class="habilitar-chamado-checkbox h-5 w-5 rounded border-gray-300" 
+                                   data-id="${chamado.id}" 
+                                   ${isChecked ? 'checked' : ''} 
+                                   ${isDisabled ? 'disabled' : ''}
+                                   title="${checkboxTitle}">
+                        </div>
+                    </td>
+                `;
+                
+                tabelaUltimosChamadosBody.appendChild(row);
+            });
+        }
+
+        // =======================================================================
+        // ALTERAÇÃO: Nome formatado e coluna "Descrição" removida
+        // =======================================================================
+        function updateDashboardTecnico() {
+            if (!currentUser) return;
+
+            const loggedInTechnicianName = currentUser.displayName;
+            // Formata o nome no título
+            tecnicoNomeEl.textContent = toTitleCase(loggedInTechnicianName);
+
+            const isUserInTechnicianList = techniciansList.some(t => t.nome === loggedInTechnicianName);
+            
+            if (!isUserInTechnicianList && techniciansList.length > 0) { 
+                // --- CORREÇÃO: Mostra o nome EXATO do Google no aviso ---
+                googleDisplayName.textContent = loggedInTechnicianName;
+                tecnicoWarning.style.display = 'block';
+                tabelaMeusChamadosBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Usuário não encontrado na lista de técnicos.</td></tr>';
+                return;
+            } else {
+                tecnicoWarning.style.display = 'none';
+            }
+            
+            const chamadosFiltrados = allChamados.filter(c =>
+                c.atribuidoPara === loggedInTechnicianName &&
+                c.habilitado !== false
+            );
+            
+            tabelaMeusChamadosBody.innerHTML = '';
+            if (chamadosFiltrados.length === 0) {
+                tabelaMeusChamadosBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhum chamado habilitado atribuído a você.</td></tr>';
+                return;
+            }
+
+            chamadosFiltrados.forEach(chamado => {
+                const row = document.createElement('tr');
+                const status = chamado.status || 'Aberto';
+                let statusClass = 'text-red-600 bg-red-100';
+                if (status === 'Verificando') {
+                    statusClass = 'text-yellow-700 bg-yellow-100';
+                } else if (status === 'Finalizado') {
+                    statusClass = 'text-green-600 bg-green-100';
+                }
+                const isVerificando = status === 'Verificando' ? 'checked' : '';
+                const isFinalizado = status === 'Finalizado' ? 'checked' : '';
+                const rowClass = isFinalizado ? 'line-through text-gray-400 bg-gray-50' : '';
+                const tdClass = isFinalizado ? 'text-gray-400' : 'text-gray-700';
+
+                const ticketId = chamado.ticketGlpi || '';
+                const glpiHtml = ticketId 
+                    ? `<a href="${glpiBaseUrl}${ticketId}" target="_blank" class="glpi-link ${isFinalizado ? 'text-gray-400' : ''}" title="Abrir ticket ${ticketId} no GLPI">${ticketId}</a>` 
+                    : `<span class="${tdClass} text-gray-400">N/A</span>`;
+
+                row.className = rowClass;
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm ${tdClass}">${chamado.categoria}</td>
+                    <td class="px-6 py-4 text-sm">${glpiHtml}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-4 justify-center">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="verificando" data-id="${chamado.id}" class="status-checkbox verificando h-5 w-5 rounded border-gray-300" ${isVerificando}>
+                                <span class="text-sm font-medium ${isFinalizado ? '' : 'text-gray-700'}">Verificando</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="finalizado" data-id="${chamado.id}" class="status-checkbox finalizado h-5 w-5 rounded border-gray-300" ${isFinalizado}>
+                                <span class="text-sm font-medium ${isFinalizado ? '' : 'text-gray-700'}">Finalizado</span>
+                            </label>
+                        </div>
+                    </td>
+                `;
+                tabelaMeusChamadosBody.appendChild(row);
+            });
+        }
+        
+        function updateAdminUI() {
+            listTecnicos.innerHTML = '';
+            if (techniciansList.length === 0) {
+                listTecnicos.innerHTML = '<li class="text-gray-500">Nenhum técnico cadastrado.</li>';
+            }
+            techniciansList.forEach(tec => {
+                const item = document.createElement('li');
+                item.className = 'admin-list-item';
+                const isHabilitado = tec.habilitado !== false; 
+                const nomeClass = isHabilitado ? '' : 'line-through text-gray-400';
+                
+                // O nome aqui permanece EXATO (sem formatação)
+                item.innerHTML = `
+                    <span class="font-medium ${nomeClass}">${tec.nome}</span>
+                    <button class="admin-toggle-btn ${isHabilitado ? 'enabled' : 'disabled'}" data-id="${tec.id}" data-collection="tecnicos" data-state="${isHabilitado}">
+                        ${isHabilitado ? 'Desabilitar' : 'Habilitar'}
+                    </button>
+                `;
+
+                const toggleButton = item.querySelector('.admin-toggle-btn');
+                if(toggleButton) {
+                    toggleButton.addEventListener('click', () => {
+                        handleAdminToggle(
+                            toggleButton.dataset.id,
+                            toggleButton.dataset.collection,
+                            toggleButton.dataset.state === 'true'
+                        );
+                    });
+                }
+                listTecnicos.appendChild(item);
+            });
+
+            listCategorias.innerHTML = '';
+            if (categoriesList.length === 0) {
+                listCategorias.innerHTML = '<li class="text-gray-500">Nenhuma categoria cadastrada.</li>';
+            }
+            categoriesList.forEach(cat => {
+                const item = document.createElement('li');
+                item.className = 'admin-list-item';
+                const isHabilitado = cat.habilitado !== false;
+                const nomeClass = isHabilitado ? '' : 'line-through text-gray-400';
+                
+                item.innerHTML = `
+                    <span class="font-medium ${nomeClass}">${cat.nome}</span>
+                    <button class="admin-toggle-btn ${isHabilitado ? 'enabled' : 'disabled'}" data-id="${cat.id}" data-collection="categorias" data-state="${isHabilitado}">
+                        ${isHabilitado ? 'Desabilitar' : 'Habilitar'}
+                    </button>
+                `;
+                
+                const toggleButton = item.querySelector('.admin-toggle-btn');
+                if(toggleButton) {
+                    toggleButton.addEventListener('click', () => {
+                        handleAdminToggle(
+                            toggleButton.dataset.id,
+                            toggleButton.dataset.collection,
+                            toggleButton.dataset.state === 'true'
+                        );
+                    });
+                }
+                listCategorias.appendChild(item);
+            });
+        }
+
+        // --- Funções de Gráficos (Chart.js) ---
+        function renderCharts(chamadosSemana) {
+            // 1. Gráfico de Pizza por Categoria
+            const categoryCounts = categoriesList.reduce((acc, cat) => {
+                acc[cat.nome] = 0;
+                return acc;
+            }, {});
+            chamadosSemana.forEach(chamado => {
+                if (categoryCounts[chamado.categoria] !== undefined) {
+                    categoryCounts[chamado.categoria]++;
+                }
+            });
+
+            const pieCtx = document.getElementById('category-pie-chart').getContext('2d');
+            if (categoryPieChart) categoryPieChart.destroy();
+            categoryPieChart = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{
+                        data: Object.values(categoryCounts),
+                        backgroundColor: ['#004d40', '#00695c', '#00897b', '#4db6ac', '#b2dfdb', '#80cbc4', '#26a69a'],
+                        borderWidth: 0
+                        }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } } }
+                }
+            });
+
+            // 2. Gráfico de Barras por Técnico
+            const techCounts = techniciansList.reduce((acc, tec) => {
+                acc[tec.nome] = 0;
+                return acc;
+            }, {});
+            chamadosSemana.forEach(chamado => {
+                if (techCounts[chamado.atribuidoPara] !== undefined) {
+                    techCounts[chamado.atribuidoPara]++;
+                }
+            });
+            
+            const barCtx = document.getElementById('technician-bar-chart').getContext('2d');
+            if (technicianBarChart) technicianBarChart.destroy();
+            technicianBarChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(techCounts).map(nome => toTitleCase(nome)),
+                    datasets: [{
+                        label: 'Chamados na Semana',
+                        data: Object.values(techCounts),
+                        backgroundColor: '#00695c',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        // --- Funções de UX (Toast e Modal) ---
+        function showToast(message, type = "success") {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Modal de Confirmação (Genérico)
+        function showModal(title, message, callback) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            
+            const newConfirmBtn = modalBtnConfirm.cloneNode(true);
+            modalBtnConfirm.parentNode.replaceChild(newConfirmBtn, modalBtnConfirm);
+            modalBtnConfirm = newConfirmBtn;
+            
+            modalBtnConfirm.addEventListener('click', () => {
+                modalOverlay.classList.add('hidden');
+                callback(true);
+            }, { once: true });
+
+            modalBtnCancel.onclick = () => {
+                modalOverlay.classList.add('hidden');
+                callback(false);
+            };
+            
+            modalOverlay.classList.remove('hidden');
+            modalBtnConfirm.focus();
+        }
+
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
