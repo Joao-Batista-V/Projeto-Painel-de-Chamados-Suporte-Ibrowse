@@ -92,13 +92,24 @@
             border-top: 1px solid var(--color-border); 
             padding-top: 16px; 
             display: flex; 
-            align-items: center; 
-            gap: 8px; 
+            flex-direction: column; /* Agora em coluna */
+            align-items: flex-start; /* Alinha os itens à esquerda */
+            gap: 8px; /* Espaçamento entre os itens */
+            width: 100%; /* Ocupa a largura total da sidebar */
         }
         #user-profile img { width: 40px; height: 40px; border-radius: 50%; }
         #user-profile-name { font-weight: 600; font-size: 0.875rem; }
-        #logout-button { background: none; border: none; color: var(--color-text-muted); cursor: pointer; margin-left: auto; padding: 4px; }
-        #logout-button:hover { color: var(--color-text-primary); }
+        /* Estilos do botão de logout */
+        #logout-button {
+            background-color: var(--color-bg-table-row-hover);
+            color: var(--color-text-primary);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #logout-button:hover {
+            background-color: var(--color-border);
+        }
 
         #login-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
         .login-box { background: var(--color-bg-card); padding: 48px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center; }
@@ -313,13 +324,16 @@
             </div>
 
             <div id="user-profile" class="mt-4">
-                <img id="user-avatar" src="https://placehold.co/40x40/e0f2f1/004d40?text=U" alt="Avatar">
-                <div>
-                    <div id="user-profile-name" class="highlight-text">Usuário</div>
-                    <div id="user-profile-email" class="text-xs text-muted">email@exemplo.com</div>
+                <div class="flex items-center gap-2 w-full">
+                    <img id="user-avatar" src="https://placehold.co/40x40/e0f2f1/004d40?text=U" alt="Avatar">
+                    <div class="overflow-hidden w-full">
+                        <div id="user-profile-name" class="highlight-text truncate">Usuário</div>
+                        <div id="user-profile-email" class="text-xs text-muted truncate">email@exemplo.com</div>
+                    </div>
                 </div>
-                <button id="logout-button" title="Sair">
-                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
+                <button id="logout-button" title="Sair" class="button-secondary w-full py-1.5 rounded-lg flex items-center justify-center gap-2 text-sm">
+                    <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+                    <span>Sair</span>
                 </button>
             </div>
         </aside>
@@ -575,7 +589,6 @@
         let categoryPieChart = null;
         let technicianBarChart = null;
 
-        // --- NOVOS ESTADOS DE PERÍODO (Alteração) ---
         let periodKPIsGraficos = 'semana';
         let periodTabelaContagem = 'semana';
         let periodChamados = 'semana';
@@ -593,7 +606,6 @@
         let ticketGlpiEl;
         let themeToggleBtn, themeIcon, themeText;
         
-        // --- NOVOS Elementos de Filtro (Alteração) ---
         let periodSelectKPIsGraficosEl, periodSelectTabelaContagemEl, periodSelectChamadosEl, periodSelectTecnicoEl;
 
 
@@ -698,7 +710,6 @@
             themeIcon = document.getElementById('theme-icon');
             themeText = document.getElementById('theme-text');
             
-            // --- NOVOS (Alteração) ---
             periodSelectKPIsGraficosEl = document.getElementById('period-select-kpi');
             periodSelectTabelaContagemEl = document.getElementById('period-select-tabela-contagem');
             periodSelectChamadosEl = document.getElementById('period-select-chamados');
@@ -720,6 +731,23 @@
 
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
+                        const email = user.email || "";
+                        const allowedDomain = "sie.sc.gov.br"; // <-- SEU DOMÍNIO PERMITIDO AQUI
+
+                        if (!email.endsWith('@' + allowedDomain)) {
+                            console.warn(`Login bloqueado: Domínio ${email.split('@')[1]} não permitido.`);
+                            
+                            if (!loginErrorMessageEl) {
+                                loginErrorMessageEl = document.getElementById('login-error-message');
+                            }
+                            loginErrorMessageEl.textContent = `Domínio não permitido. Por favor, use uma conta @${allowedDomain}.`;
+                            loginErrorMessageEl.classList.remove('hidden');
+                            
+                            showLogin();
+                            signOut(auth); 
+                            return; 
+                        }
+
                         console.log("Usuário logado:", user.displayName);
                         currentUser = user;
                         showApp();
@@ -752,7 +780,6 @@
             loginScreen.style.display = 'flex';
             appContainer.style.display = 'none';
             loadingOverlay.style.display = 'none';
-            
             if(pageGeral) pageGeral.style.display = 'none';
             if(pageTecnico) pageTecnico.style.display = 'none';
             if(pageAdmin) pageAdmin.style.display = 'none';
@@ -785,9 +812,9 @@
                 let userMessage = "Erro desconhecido. Verifique o console.";
                 
                 if (error.code === 'auth/popup-closed-by-user') {
-                    userMessage = "Login cancelado. A janela pop-up foi fechada.";
+                    return; 
                 } else if (error.code === 'auth/cancelled-popup-request') {
-                    userMessage = "Login cancelado. (Múltiplos pop-ups abertos)";
+                    return;
                 } else if (error.code === 'auth/operation-not-allowed') {
                     userMessage = "Erro: Login com Google não está ativado no seu projeto Firebase.";
                 } else if (error.code === 'auth/invalid-api-key') {
@@ -1002,7 +1029,6 @@
                 await updateDoc(doc(db, 'chamados', docId), { 
                     habilitado: novoEstadoHabilitado 
                 });
-                // --- MENSAGEM ATUALIZADA (Alteração) ---
                 showToast(novoEstadoHabilitado ? "Chamado re-ativado!" : "Chamado marcado como Inativo.", "success");
             } catch (err) {
                 console.error("Erro ao atualizar chamado:", err);
@@ -1063,7 +1089,6 @@
                 if (loadingOverlay.style.display !== 'none') {
                     loadingOverlay.style.display = 'none';
                     
-                    // Seta os valores padrão dos selects (Alteração)
                     periodSelectKPIsGraficosEl.value = periodKPIsGraficos;
                     periodSelectTabelaContagemEl.value = periodTabelaContagem;
                     periodSelectChamadosEl.value = periodChamados;
@@ -1081,13 +1106,12 @@
         function triggerAllUpdates() {
             if (loadingOverlay.style.display !== 'none') return;
 
-            // Chama todas as funções de renderização (Alteração)
-            updateDashboardGeral();     // KPIs e Gráficos
-            updateTabelaContagem();     // Tabela de Contagem
-            updateTabelaChamados();     // Tabela de Chamados
-            updateDashboardTecnico();   // Painel do Técnico
-            updateAdminUI();            // Painel Admin (sem filtro)
-            updateNextTechnician();     // Sugestão (sem filtro)
+            updateDashboardGeral();     
+            updateTabelaContagem();     
+            updateTabelaChamados();     
+            updateDashboardTecnico();   
+            updateAdminUI();            
+            updateNextTechnician();     
         }
 
         function showPage(pageName) {
@@ -1185,9 +1209,6 @@
             renderCharts(chamadosHabilitados);
         }
 
-        // =======================================================================
-        // NOVA FUNÇÃO (Alteração)
-        // =======================================================================
         function updateTabelaContagem() {
             const chamadosDoPeriodo = getFilteredChamados(periodTabelaContagem);
             const chamadosHabilitados = chamadosDoPeriodo.filter(c => c.habilitado !== false);
@@ -1242,7 +1263,6 @@
                 const isChecked = !isHabilitado; 
                 const isDisabled = isFinalizado;
                 
-                // --- TÍTULO DO CHECKBOX ATUALIZADO (Alteração) ---
                 const checkboxTitle = isFinalizado ? 'Chamado solucionado' : (isChecked ? 'Inativo (clique para re-ativar)' : 'Ativo (clique para inativar)');
 
                 const ticketId = chamado.ticketGlpi || '';
