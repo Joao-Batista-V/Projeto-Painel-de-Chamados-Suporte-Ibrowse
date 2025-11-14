@@ -67,3 +67,17 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Chaves de Conta de Serviço (MUITO IMPORTANTE)
+# Adicione o nome do seu arquivo .json de chave privada aqui
+# Exemplo: serviceAccountKey.json
+
+
+# Arquivos de Sistema e IDE
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Outras variações de arquivos de ambiente
+.env.*
+!.env.example
