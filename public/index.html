@@ -376,16 +376,43 @@
                     </div>
 
                     <div class="lg:col-span-2 card-base p-6 rounded-xl shadow-lg space-y-10 self-start">
-                        <div class="filter-wrapper">
-                            <h2 class="text-xl font-semibold highlight-text">Contabilidade de Chamados</h2>
-                            <div class="filter-control">
-                                <label for="period-select-kpi" class="text-sm font-medium text-primary">Período:</label>
-                                <select id="period-select-kpi" class="filter-select form-input-base rounded-md shadow-sm sm:text-sm">
-                                    <option value="hoje">Hoje</option>
-                                    <option value="semana" selected>Esta Semana</option>
-                                    <option value="mes">Este Mês</option>
-                                    <option value="todos">Todos</option>
-                                </select>
+                        <div class="filter-wrapper bg-card-secondary p-4 rounded-lg border border-base mb-6" style="background-color: var(--color-bg-card-secondary)">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full">
+                                <div class="flex flex-col gap-1 text-left">
+                                    <label class="text-[10px] font-bold text-secondary uppercase">Período</label>
+                                    <select id="ov-filter-period" class="form-input-base rounded-md py-1 text-xs px-1">
+                                        <option value="hoje">Hoje</option>
+                                        <option value="semana" selected>Esta Semana</option>
+                                        <option value="mes">Este Mês</option>
+                                        <option value="todos">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1 text-left">
+                                    <label class="text-[10px] font-bold text-secondary uppercase">Técnico</label>
+                                    <select id="ov-filter-tech" class="form-input-base rounded-md py-1 text-xs px-1">
+                                        <option value="todos">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1 text-left">
+                                    <label class="text-[10px] font-bold text-secondary uppercase">Status</label>
+                                    <select id="ov-filter-status" class="form-input-base rounded-md py-1 text-xs px-1">
+                                        <option value="todos">Todos</option>
+                                        <option value="Aberto">Aberto</option>
+                                        <option value="Em atendimento">Em atendimento</option>
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Solucionado">Solucionado</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1 text-left">
+                                    <label class="text-[10px] font-bold text-secondary uppercase">Categoria</label>
+                                    <select id="ov-filter-cat" class="form-input-base rounded-md py-1 text-xs px-1">
+                                        <option value="todas">Todas</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1 text-left">
+                                    <label class="text-[10px] font-bold text-secondary uppercase">Buscar Ticket</label>
+                                    <input type="text" id="ov-filter-ticket" placeholder="Nº..." class="form-input-base rounded-md py-1 text-xs px-2">
+                                </div>
                             </div>
                         </div>
 
@@ -419,16 +446,46 @@
 
                 <div class="mt-6 grid grid-cols-1 gap-6">
                     <div class="card-base p-6 rounded-xl shadow-lg">
-                        <div class="filter-wrapper">
-                            <h3 class="text-lg font-semibold text-primary">Contagem por Categoria</h3>
-                            <div class="filter-control">
-                                <label for="period-select-tabela-contagem" class="text-sm font-medium text-primary">Período:</label>
-                                <select id="period-select-tabela-contagem" class="filter-select form-input-base rounded-md shadow-sm sm:text-sm">
-                                    <option value="hoje">Hoje</option>
-                                    <option value="semana" selected>Esta Semana</option>
-                                    <option value="mes">Este Mês</option>
-                                    <option value="todos">Todos</option>
-                                </select>
+                        <div class="filter-wrapper bg-card-secondary p-4 rounded-lg border border-base mb-6" style="background-color: var(--color-bg-card-secondary)">
+                            <div class="flex flex-col gap-4 w-full">
+                                <h3 class="text-lg font-semibold text-primary">Contagem por Categoria</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full">
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Período</label>
+                                        <select id="cnt-filter-period" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="hoje">Hoje</option>
+                                            <option value="semana" selected>Esta Semana</option>
+                                            <option value="mes">Este Mês</option>
+                                            <option value="todos">Todos</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Técnico</label>
+                                        <select id="cnt-filter-tech" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="todos">Todos</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Status</label>
+                                        <select id="cnt-filter-status" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="todos">Todos</option>
+                                            <option value="Aberto">Aberto</option>
+                                            <option value="Em atendimento">Em atendimento</option>
+                                            <option value="Pendente">Pendente</option>
+                                            <option value="Solucionado">Solucionado</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Categoria</label>
+                                        <select id="cnt-filter-cat" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="todas">Todas</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Buscar Ticket</label>
+                                        <input type="text" id="cnt-filter-ticket" placeholder="Nº..." class="form-input-base rounded-md py-1 text-xs px-2">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="overflow-x-auto">
@@ -440,16 +497,46 @@
                     </div>
 
                     <div class="card-base p-6 rounded-xl shadow-lg">
-                        <div class="filter-wrapper">
-                            <h3 class="text-lg font-semibold text-primary">Chamados Registrados</h3>
-                            <div class="filter-control">
-                                <label for="period-select-chamados" class="text-sm font-medium text-primary">Período:</label>
-                                <select id="period-select-chamados" class="filter-select form-input-base rounded-md shadow-sm sm:text-sm">
-                                    <option value="hoje">Hoje</option>
-                                    <option value="semana" selected>Esta Semana</option>
-                                    <option value="mes">Este Mês</option>
-                                    <option value="todos">Todos</option>
-                                </select>
+                        <div class="filter-wrapper bg-card-secondary p-4 rounded-lg border border-base mb-6" style="background-color: var(--color-bg-card-secondary)">
+                            <div class="flex flex-col gap-4 w-full">
+                                <h3 class="text-lg font-semibold text-primary">Chamados Registrados</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full">
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Período</label>
+                                        <select id="reg-filter-period" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="hoje">Hoje</option>
+                                            <option value="semana" selected>Esta Semana</option>
+                                            <option value="mes">Este Mês</option>
+                                            <option value="todos">Todos</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Técnico</label>
+                                        <select id="reg-filter-tech" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="todos">Todos</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Status</label>
+                                        <select id="reg-filter-status" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="todos">Todos</option>
+                                            <option value="Aberto">Aberto</option>
+                                            <option value="Em atendimento">Em atendimento</option>
+                                            <option value="Pendente">Pendente</option>
+                                            <option value="Solucionado">Solucionado</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Categoria</label>
+                                        <select id="reg-filter-cat" class="form-input-base rounded-md py-1 text-xs px-1">
+                                            <option value="todas">Todas</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-left">
+                                        <label class="text-[10px] font-bold text-secondary uppercase">Buscar Ticket</label>
+                                        <input type="text" id="reg-filter-ticket" placeholder="Nº..." class="form-input-base rounded-md py-1 text-xs px-2">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -472,16 +559,37 @@
             </div> <div id="page-tecnico" class="hidden">
                 <div class="card-base p-6 rounded-xl shadow-lg space-y-6">
                     
-                    <div class="filter-wrapper">
-                        <h2 class="text-xl font-semibold highlight-text">Painel do Técnico: Meus Chamados</h2>
-                         <div class="filter-control">
-                            <label for="period-select-tecnico" class="text-sm font-medium text-primary">Período:</label>
-                            <select id="period-select-tecnico" class="filter-select form-input-base rounded-md shadow-sm sm:text-sm">
-                                <option value="hoje">Hoje</option>
-                                <option value="semana" selected>Esta Semana</option>
-                                <option value="mes">Este Mês</option>
-                                <option value="todos">Todos</option>
-                            </select>
+                    <div class="filter-wrapper bg-card-secondary p-4 rounded-lg border border-base mb-6" style="background-color: var(--color-bg-card-secondary)">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                            <div class="flex flex-col gap-1 text-left">
+                                <label class="text-xs font-bold text-secondary uppercase">Período</label>
+                                <select id="tc-filter-period" class="form-input-base rounded-md py-1.5 text-sm px-2">
+                                    <option value="hoje">Hoje</option>
+                                    <option value="semana" selected>Esta Semana</option>
+                                    <option value="mes">Este Mês</option>
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1 text-left">
+                                <label class="text-xs font-bold text-secondary uppercase">Status</label>
+                                <select id="tc-filter-status" class="form-input-base rounded-md py-1.5 text-sm px-2">
+                                    <option value="todos">Todos</option>
+                                    <option value="Aberto">Aberto</option>
+                                    <option value="Em atendimento">Em atendimento</option>
+                                    <option value="Pendente">Pendente</option>
+                                    <option value="Solucionado">Solucionado</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1 text-left">
+                                <label class="text-xs font-bold text-secondary uppercase">Categoria</label>
+                                <select id="tc-filter-cat" class="form-input-base rounded-md py-1.5 text-sm px-2">
+                                    <option value="todas">Todas</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1 text-left">
+                                <label class="text-xs font-bold text-secondary uppercase">Buscar Ticket</label>
+                                <input type="text" id="tc-filter-ticket" placeholder="Nº do Ticket..." class="form-input-base rounded-md py-1.5 text-sm px-3">
+                            </div>
                         </div>
                     </div>
                     
@@ -543,6 +651,7 @@
         </div>
     </div>
 
+    <div id="toast-container"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -596,6 +705,27 @@
         let periodTabelaContagem = 'semana';
         let periodChamados = 'semana';
         let periodTecnico = 'semana';
+
+        // --- NOVOS ESTADOS PARA OS FILTROS (Adicionar aqui) ---
+        // Filtros da Visão Geral
+        // --- ESTADOS DOS FILTROS - VISÃO GERAL (Independentes) ---
+        
+        // 1. Filtros para os KPIs e Gráficos (Topo)
+        let kpiFilter = { tech: 'todos', status: 'todos', cat: 'todas', ticket: '' };
+
+        // 2. Filtros para a Tabela "Contagem por Categoria"
+        let cntFilter = { tech: 'todos', status: 'todos', cat: 'todas', ticket: '' };
+
+        // 3. Filtros para a Tabela "Chamados Registrados"
+        let regFilter = { tech: 'todos', status: 'todos', cat: 'todas', ticket: '' };
+
+        // Obs: O Período (Data) continuará usando as variáveis que você já tem:
+        // periodKPIsGraficos, periodTabelaContagem e periodChamados.
+
+        // Filtros do Painel do Técnico
+        let tcFilterStatus = 'todos';
+        let tcFilterCat = 'todas';
+        let tcFilterTicket = '';
 
         // --- Elementos do DOM ---
         let loginScreen, appContainer, loginButton, logoutButton, userAvatar, userNameEl, userEmailEl;
@@ -713,10 +843,10 @@
             themeIcon = document.getElementById('theme-icon');
             themeText = document.getElementById('theme-text');
             
-            periodSelectKPIsGraficosEl = document.getElementById('period-select-kpi');
-            periodSelectTabelaContagemEl = document.getElementById('period-select-tabela-contagem');
-            periodSelectChamadosEl = document.getElementById('period-select-chamados');
-            periodSelectTecnicoEl = document.getElementById('period-select-tecnico');
+            periodSelectKPIsGraficosEl = document.getElementById('ov-filter-period');
+            periodSelectTabelaContagemEl = document.getElementById('cnt-filter-period');
+            periodSelectChamadosEl = document.getElementById('reg-filter-period');
+            periodSelectTecnicoEl = document.getElementById('tc-filter-period');
 
             loadTheme();
             
@@ -899,40 +1029,51 @@
         }
 
         function setupLoggedInUIListeners() {
+            // --- Botões de Navegação e Logout ---
             logoutButton.addEventListener('click', handleLogout);
             navBtnGeral.addEventListener('click', () => showPage('geral'));
             navBtnTecnico.addEventListener('click', () => showPage('tecnico'));
             navBtnAdmin.addEventListener('click', () => showPage('admin'));
+            
+            // --- Formulários ---
             form.addEventListener('submit', handleRegisterChamado);
-            
-            tabelaMeusChamadosBody.addEventListener('click', handleStatusChange);
-            
             formAddTecnico.addEventListener('submit', handleAddTecnico);
             formAddCategoria.addEventListener('submit', handleAddCategoria);
-            
+
+            // --- Ações nas Tabelas ---
+            tabelaMeusChamadosBody.addEventListener('click', handleStatusChange);
             tabelaUltimosChamadosBody.addEventListener('change', (e) => {
                 if (e.target.classList.contains('habilitar-chamado-checkbox')) {
                     handleChamadoToggle(e);
                 }
-            });
+            }); // <-- Aqui estava o erro de fechamento
 
-            // Listeners dos filtros (Alteração)
-            periodSelectKPIsGraficosEl.addEventListener('change', (e) => {
-                periodKPIsGraficos = e.target.value;
-                updateDashboardGeral(); // Atualiza KPIs, Gráficos
-            });
-            periodSelectTabelaContagemEl.addEventListener('change', (e) => {
-                periodTabelaContagem = e.target.value;
-                updateTabelaContagem(); // Atualiza SÓ a tabela de contagem
-            });
-            periodSelectChamadosEl.addEventListener('change', (e) => {
-                periodChamados = e.target.value;
-                updateTabelaChamados(); // Atualiza SÓ a tabela de chamados
-            });
-            periodSelectTecnicoEl.addEventListener('change', (e) => {
-                periodTecnico = e.target.value;
-                updateDashboardTecnico(); // Atualiza SÓ o painel do técnico
-            });
+            // --- 1. Listeners: KPIs e Gráficos (Topo) ---
+            document.getElementById('ov-filter-period').addEventListener('change', (e) => { periodKPIsGraficos = e.target.value; updateDashboardGeral(); });
+            document.getElementById('ov-filter-tech').addEventListener('change', (e) => { kpiFilter.tech = e.target.value; updateDashboardGeral(); });
+            document.getElementById('ov-filter-status').addEventListener('change', (e) => { kpiFilter.status = e.target.value; updateDashboardGeral(); });
+            document.getElementById('ov-filter-cat').addEventListener('change', (e) => { kpiFilter.cat = e.target.value; updateDashboardGeral(); });
+            document.getElementById('ov-filter-ticket').addEventListener('input', (e) => { kpiFilter.ticket = e.target.value.trim(); updateDashboardGeral(); });
+
+            // --- 2. Listeners: Tabela de Contagem (Meio) ---
+            document.getElementById('cnt-filter-period').addEventListener('change', (e) => { periodTabelaContagem = e.target.value; updateTabelaContagemComDados(); });
+            document.getElementById('cnt-filter-tech').addEventListener('change', (e) => { cntFilter.tech = e.target.value; updateTabelaContagemComDados(); });
+            document.getElementById('cnt-filter-status').addEventListener('change', (e) => { cntFilter.status = e.target.value; updateTabelaContagemComDados(); });
+            document.getElementById('cnt-filter-cat').addEventListener('change', (e) => { cntFilter.cat = e.target.value; updateTabelaContagemComDados(); });
+            document.getElementById('cnt-filter-ticket').addEventListener('input', (e) => { cntFilter.ticket = e.target.value.trim(); updateTabelaContagemComDados(); });
+
+            // --- 3. Listeners: Tabela de Registros (Baixo) ---
+            document.getElementById('reg-filter-period').addEventListener('change', (e) => { periodChamados = e.target.value; updateTabelaUltimosChamadosComDados(); });
+            document.getElementById('reg-filter-tech').addEventListener('change', (e) => { regFilter.tech = e.target.value; updateTabelaUltimosChamadosComDados(); });
+            document.getElementById('reg-filter-status').addEventListener('change', (e) => { regFilter.status = e.target.value; updateTabelaUltimosChamadosComDados(); });
+            document.getElementById('reg-filter-cat').addEventListener('change', (e) => { regFilter.cat = e.target.value; updateTabelaUltimosChamadosComDados(); });
+            document.getElementById('reg-filter-ticket').addEventListener('input', (e) => { regFilter.ticket = e.target.value.trim(); updateTabelaUltimosChamadosComDados(); });
+
+            // --- 4. Listeners: Painel do Técnico ---
+            document.getElementById('tc-filter-period').addEventListener('change', (e) => { periodTecnico = e.target.value; updateDashboardTecnico(); });
+            document.getElementById('tc-filter-status').addEventListener('change', (e) => { tcFilterStatus = e.target.value; updateDashboardTecnico(); });
+            document.getElementById('tc-filter-cat').addEventListener('change', (e) => { tcFilterCat = e.target.value; updateDashboardTecnico(); });
+            document.getElementById('tc-filter-ticket').addEventListener('input', (e) => { tcFilterTicket = e.target.value.trim(); updateDashboardTecnico(); });
         }
 
         // --- Handlers de Ações (Escrever Dados) ---
@@ -1110,8 +1251,8 @@
             if (loadingOverlay.style.display !== 'none') return;
 
             updateDashboardGeral();     
-            updateTabelaContagem();     
-            updateTabelaChamados();     
+            updateTabelaContagemComDados(); 
+            updateTabelaUltimosChamadosComDados(); 
             updateDashboardTecnico();   
             updateAdminUI();            
             updateNextTechnician();     
@@ -1141,20 +1282,36 @@
         function populateTechnicianSelects() {
             const currentAtribuir = selectProximoTecnicoEl.value;
             
+            // Referências dos 3 filtros de Técnico na Visão Geral
+            const fTechKpi = document.getElementById('ov-filter-tech');
+            const fTechCnt = document.getElementById('cnt-filter-tech');
+            const fTechReg = document.getElementById('reg-filter-tech');
+
+            // Limpa e define a opção padrão "Todos"
             selectProximoTecnicoEl.innerHTML = '';
+            const selectsOverview = [fTechKpi, fTechCnt, fTechReg];
+            selectsOverview.forEach(s => { 
+                if(s) s.innerHTML = '<option value="todos">Todos</option>'; 
+            });
             
             const habilitados = techniciansList.filter(t => t.habilitado !== false);
             
             if (habilitados.length === 0) {
-                 const msg = '<option value="">Nenhum técnico habilitado</option>';
-                 selectProximoTecnicoEl.innerHTML = msg;
+                 selectProximoTecnicoEl.innerHTML = '<option value="">Nenhum técnico habilitado</option>';
             }
 
             habilitados.forEach(tec => {
                 const option = document.createElement('option');
                 option.value = tec.nome; 
                 option.textContent = toTitleCase(tec.nome); 
+                
+                // Adiciona no formulário de registro (Novo Chamado)
                 selectProximoTecnicoEl.appendChild(option.cloneNode(true));
+                
+                // Adiciona nos 3 filtros da Visão Geral
+                selectsOverview.forEach(s => { 
+                    if(s) s.appendChild(option.cloneNode(true)); 
+                });
             });
 
             selectProximoTecnicoEl.value = currentAtribuir || (habilitados[0]?.nome || '');
@@ -1162,7 +1319,18 @@
         
         function populateCategoriaSelect() {
             const currentCategoria = categoriaEl.value;
+            
+            // Referências de todos os filtros de Categoria (Overview e Técnico)
+            const fCatKpi = document.getElementById('ov-filter-cat');
+            const fCatCnt = document.getElementById('cnt-filter-cat');
+            const fCatReg = document.getElementById('reg-filter-cat');
+            const fCatTc = document.getElementById('tc-filter-cat');
+
             categoriaEl.innerHTML = '';
+            const allSelects = [fCatKpi, fCatCnt, fCatReg, fCatTc];
+            allSelects.forEach(s => { 
+                if(s) s.innerHTML = '<option value="todas">Todas</option>'; 
+            });
             
             const habilitadas = categoriesList.filter(c => c.habilitado !== false);
             
@@ -1174,8 +1342,16 @@
                 const option = document.createElement('option');
                 option.value = cat.nome;
                 option.textContent = cat.nome; 
-                categoriaEl.appendChild(option);
+                
+                // Adiciona no formulário de registro
+                categoriaEl.appendChild(option.cloneNode(true));
+                
+                // Adiciona em todos os filtros de categoria do painel
+                allSelects.forEach(s => { 
+                    if(s) s.appendChild(option.cloneNode(true)); 
+                });
             });
+            
             categoriaEl.value = currentCategoria || (habilitadas[0]?.nome || '');
         }
 
@@ -1200,95 +1376,121 @@
             selectProximoTecnicoEl.value = getNextTechnician();
         }
 
-        function updateDashboardGeral() {
-            const chamadosDoPeriodo = getFilteredChamados(periodKPIsGraficos);
-            
-            const chamadosHabilitados = chamadosDoPeriodo.filter(c => c.habilitado !== false);
-            const chamadosSolucionados = chamadosHabilitados.filter(c => c.status === 'Solucionado');
-            
-            kpiPeriodoEl.textContent = chamadosHabilitados.length;
-            kpiSolucionadosEl.textContent = chamadosSolucionados.length;
-            
-            renderCharts(chamadosHabilitados);
+// --- Função Auxiliar: Motor de Filtragem (Não existia antes) ---
+        function filtrarListaChamados(lista, filtros, periodo) {
+            let resultado = lista;
+
+            // 1. Filtro de Período (Data)
+            const agora = new Date();
+            if (periodo === 'hoje') {
+                resultado = resultado.filter(c => c.timestamp.toDate() >= getStartOfDay(agora));
+            } else if (periodo === 'semana') {
+                resultado = resultado.filter(c => c.timestamp.toDate() >= getStartOfWeek(agora));
+            } else if (periodo === 'mes') {
+                resultado = resultado.filter(c => c.timestamp.toDate() >= getStartOfMonth(agora));
+            }
+
+            // 2. Filtro de Técnico
+            if (filtros.tech && filtros.tech !== 'todos') {
+                resultado = resultado.filter(c => c.atribuidoPara === filtros.tech);
+            }
+
+            // 3. Filtro de Status
+            if (filtros.status && filtros.status !== 'todos') {
+                resultado = resultado.filter(c => c.status === filtros.status);
+            }
+
+            // 4. Filtro de Categoria
+            if (filtros.cat && filtros.cat !== 'todas') {
+                resultado = resultado.filter(c => c.categoria === filtros.cat);
+            }
+
+            // 5. Filtro de Ticket GLPI (Busca Parcial)
+            if (filtros.ticket && filtros.ticket !== '') {
+                resultado = resultado.filter(c => c.ticketGlpi && c.ticketGlpi.includes(filtros.ticket));
+            }
+
+            return resultado;
         }
 
-        function updateTabelaContagem() {
-            const chamadosDoPeriodo = getFilteredChamados(periodTabelaContagem);
-            const chamadosHabilitados = chamadosDoPeriodo.filter(c => c.habilitado !== false);
-            
+        // --- Função Visão Geral Atualizada ---
+        function updateDashboardGeral() {
+            // Usa o kpiFilter e o período específico dos gráficos
+            const filtrados = filtrarListaChamados(allChamados, kpiFilter, periodKPIsGraficos);
+            const habilitados = filtrados.filter(c => c.habilitado !== false);
+            const solucionados = habilitados.filter(c => c.status === 'Solucionado');
+
+            if (kpiPeriodoEl) kpiPeriodoEl.textContent = habilitados.length;
+            if (kpiSolucionadosEl) kpiSolucionadosEl.textContent = solucionados.length;
+
+            renderCharts(habilitados);
+        }
+
+        function updateTabelaContagemComDados() {
+            // Usa o filtro independente 'cntFilter' e o seu período específico
+            const filtrados = filtrarListaChamados(allChamados, cntFilter, periodTabelaContagem);
+            const habilitados = filtrados.filter(c => c.habilitado !== false);
+
             tabelaCategoriasHead.innerHTML = '<tr><th scope="col" class="px-6 py-3 text-xs font-medium uppercase tracking-wider">Técnico</th>';
             categoriesList.forEach(cat => {
                 tabelaCategoriasHead.querySelector('tr').innerHTML += `<th scope="col" class="px-6 py-3 text-xs font-medium uppercase tracking-wider">${cat.nome}</th>`;
             });
-            tabelaCategoriasHead.querySelector('tr').innerHTML += '<th scope="col" class="px-6 py-3 text-xs font-medium uppercase tracking-wider">Total (Técnico)</th>';
+            tabelaCategoriasHead.querySelector('tr').innerHTML += '<th scope="col" class="px-6 py-3 text-xs font-medium uppercase tracking-wider">Total</th>';
             
             tabelaCategoriasBody.innerHTML = '';
-            techniciansList
-                .filter(tec => tec.habilitado !== false)
-                .forEach(tec => {
-                    const chamadosTecnico = chamadosHabilitados.filter(c => c.atribuidoPara === tec.nome);
-                    let totalRow = 0;
-                    let rowHTML = `<td class="px-6 py-4"><div class="text-sm font-semibold text-primary">${toTitleCase(tec.nome)}</div></td>`;
-                    categoriesList.forEach(cat => {
-                        const count = chamadosTecnico.filter(c => c.categoria === cat.nome).length;
-                        rowHTML += `<td class="px-6 py-4 text-sm text-secondary">${count}</td>`;
-                        totalRow += count;
-                    });
-                    rowHTML += `<td class="px-6 py-4 text-sm font-bold highlight-text">${totalRow}</td>`;
-                    const row = document.createElement('tr');
-                    row.innerHTML = rowHTML;
-                    tabelaCategoriasBody.appendChild(row);
+            techniciansList.filter(tec => tec.habilitado !== false).forEach(tec => {
+                const chamadosTecnico = habilitados.filter(c => c.atribuidoPara === tec.nome);
+                let totalRow = 0;
+                let rowHTML = `<td class="px-6 py-4"><div class="text-sm font-semibold text-primary">${toTitleCase(tec.nome)}</div></td>`;
+                
+                categoriesList.forEach(cat => {
+                    const count = chamadosTecnico.filter(c => c.categoria === cat.nome).length;
+                    rowHTML += `<td class="px-6 py-4 text-sm text-secondary">${count}</td>`;
+                    totalRow += count;
+                });
+                
+                rowHTML += `<td class="px-6 py-4 text-sm font-bold highlight-text">${totalRow}</td>`;
+                const row = document.createElement('tr');
+                row.innerHTML = rowHTML;
+                tabelaCategoriasBody.appendChild(row);
             });
         }
         
-        function updateTabelaChamados() {
-            const chamadosDoPeriodo = getFilteredChamados(periodChamados);
-            
+        function updateTabelaUltimosChamadosComDados() {
+            // Usa o filtro independente 'regFilter' e o seu período específico
+            const chamadosDestaTabela = filtrarListaChamados(allChamados, regFilter, periodChamados);
+
             tabelaUltimosChamadosBody.innerHTML = '';
-            chamadosDoPeriodo.forEach(chamado => {
+            chamadosDestaTabela.forEach(chamado => {
                 const row = document.createElement('tr');
                 const status = chamado.status || 'Aberto';
                 const isFinalizado = status === 'Solucionado';
                 const isHabilitado = chamado.habilitado !== false; 
-                
                 const isStrikethrough = isFinalizado || !isHabilitado;
                 
-                const rowClass = isStrikethrough ? 'line-through bg-opacity-50' : '';
-                const tdClass = isStrikethrough ? 'text-muted' : 'text-secondary';
-                const tdClassSemibold = isStrikethrough ? 'text-muted' : 'text-primary';
-                const tdClassHora = isStrikethrough ? 'text-muted' : 'text-secondary';
-                
-                row.className = rowClass;
-                if(isStrikethrough) row.style.backgroundColor = 'var(--color-bg-card-secondary)';
+                if(isStrikethrough) {
+                    row.className = 'line-through bg-opacity-50';
+                    row.style.backgroundColor = 'var(--color-bg-card-secondary)';
+                }
 
                 const hora = chamado.timestamp.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-                const isChecked = !isHabilitado; 
-                const isDisabled = isFinalizado;
-                
-                const checkboxTitle = isFinalizado ? 'Chamado solucionado' : (isChecked ? 'Inativo (clique para re-ativar)' : 'Ativo (clique para inativar)');
-
                 const ticketId = chamado.ticketGlpi || '';
                 const glpiHtml = ticketId 
-                    ? `<a href="${glpiBaseUrl}${ticketId}" target="_blank" class="glpi-link ${isStrikethrough ? 'text-muted' : ''}" title="Abrir ticket ${ticketId} no GLPI">${ticketId}</a>` 
-                    : `<span class="${tdClass} text-muted">N/A</span>`;
+                    ? `<a href="${glpiBaseUrl}${ticketId}" target="_blank" class="glpi-link ${isStrikethrough ? 'text-muted' : ''}" title="Abrir ticket">${ticketId}</a>` 
+                    : `<span class="text-secondary text-muted">N/A</span>`;
 
                 row.innerHTML = `
-                    <td class="px-6 py-4"><div class="text-sm font-semibold ${tdClassSemibold}">${toTitleCase(chamado.atribuidoPara)}</div></td>
-                    <td class="px-6 py-4 text-sm ${tdClass}">${chamado.categoria}</td>
+                    <td class="px-6 py-4"><div class="text-sm font-semibold ${isStrikethrough ? 'text-muted' : 'text-primary'}">${toTitleCase(chamado.atribuidoPara)}</div></td>
+                    <td class="px-6 py-4 text-sm ${isStrikethrough ? 'text-muted' : 'text-secondary'}">${chamado.categoria}</td>
                     <td class="px-6 py-4 text-sm">${glpiHtml}</td>
-                    <td class="px-6 py-4 text-sm ${tdClassHora}">${hora}</td>
+                    <td class="px-6 py-4 text-sm ${isStrikethrough ? 'text-muted' : 'text-secondary'}">${hora}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-center">
                             <input type="checkbox" class="habilitar-chamado-checkbox h-5 w-5 rounded border-gray-300" 
-                                   data-id="${chamado.id}" 
-                                   ${isChecked ? 'checked' : ''} 
-                                   ${isDisabled ? 'disabled' : ''}
-                                   title="${checkboxTitle}">
+                                   data-id="${chamado.id}" ${!isHabilitado ? 'checked' : ''} ${isFinalizado ? 'disabled' : ''}>
                         </div>
                     </td>
                 `;
-                
                 tabelaUltimosChamadosBody.appendChild(row);
             });
         }
@@ -1296,73 +1498,63 @@
         function updateDashboardTecnico() {
             if (!currentUser) return;
 
-            const loggedInTechnicianName = currentUser.displayName;
-            tecnicoNomeEl.textContent = toTitleCase(loggedInTechnicianName);
+            const techName = currentUser.displayName;
+            const tecnicoNomeEl = document.getElementById('tecnico-nome');
+            if (tecnicoNomeEl) tecnicoNomeEl.textContent = toTitleCase(techName);
 
-            const isUserInTechnicianList = techniciansList.some(t => t.nome === loggedInTechnicianName);
-            
-            if (!isUserInTechnicianList && techniciansList.length > 0) { 
-                // --- CORREÇÃO APLICADA AQUI (Alteração) ---
-                // Mostra o nome exato (sem formatação) no aviso
-                googleDisplayName.textContent = loggedInTechnicianName;
-                tecnicoWarning.style.display = 'block';
-                tabelaMeusChamadosBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-secondary">Usuário não encontrado na lista de técnicos.</td></tr>';
-                return;
-            } else {
-                tecnicoWarning.style.display = 'none';
-            }
-            
-            const chamadosDoPeriodo = getFilteredChamados(periodTecnico);
-            
-            const chamadosFiltrados = chamadosDoPeriodo.filter(c =>
-                c.atribuidoPara === loggedInTechnicianName &&
-                c.habilitado !== false
-            );
-            
+            const filtrosTecnico = {
+                tech: techName,
+                status: tcFilterStatus,
+                cat: tcFilterCat,
+                ticket: tcFilterTicket
+            };
+
+            const chamadosFiltrados = filtrarListaChamados(allChamados, filtrosTecnico, periodTecnico);
+            const meusChamadosAtivos = chamadosFiltrados.filter(c => c.habilitado !== false);
+
             tabelaMeusChamadosBody.innerHTML = '';
-            if (chamadosFiltrados.length === 0) {
-                tabelaMeusChamadosBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-secondary">Nenhum chamado habilitado atribuído a você neste período.</td></tr>';
+            
+            if (meusChamadosAtivos.length === 0) {
+                tabelaMeusChamadosBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-secondary opacity-60 italic">Nenhum chamado encontrado com estes filtros.</td></tr>';
                 return;
             }
 
-            chamadosFiltrados.forEach(chamado => {
+            meusChamadosAtivos.forEach(chamado => {
                 const row = document.createElement('tr');
                 const status = chamado.status || 'Aberto';
+                const isFinalizado = status === 'Solucionado';
                 
                 let statusClass = 'status-aberto'; 
-                if (status === 'Em atendimento') {
-                    statusClass = 'status-atendimento';
-                } else if (status === 'Pendente') {
-                    statusClass = 'status-pendente';
-                } else if (status === 'Solucionado') {
-                    statusClass = 'status-solucionado';
+                if (status === 'Em atendimento') statusClass = 'status-atendimento';
+                else if (status === 'Pendente') statusClass = 'status-pendente';
+                else if (status === 'Solucionado') statusClass = 'status-solucionado';
+                
+                if (isFinalizado) {
+                    row.className = 'line-through bg-opacity-50';
+                    row.style.backgroundColor = 'var(--color-bg-card-secondary)';
                 }
-                
-                const isFinalizado = status === 'Solucionado';
-                const rowClass = isFinalizado ? 'line-through bg-opacity-50' : '';
-                const tdClass = isFinalizado ? 'text-muted' : 'text-secondary';
-                
-                if(isFinalizado) row.style.backgroundColor = 'var(--color-bg-card-secondary)';
 
                 const ticketId = chamado.ticketGlpi || '';
                 const glpiHtml = ticketId 
-                    ? `<a href="${glpiBaseUrl}${ticketId}" target="_blank" class="glpi-link ${isFinalizado ? 'text-muted' : ''}" title="Abrir ticket ${ticketId} no GLPI">${ticketId}</a>` 
-                    : `<span class="${tdClass} text-muted">N/A</span>`;
+                    ? `<a href="${glpiBaseUrl}${ticketId}" target="_blank" class="glpi-link ${isFinalizado ? 'text-muted' : ''}">${ticketId}</a>` 
+                    : `<span class="text-secondary text-muted">N/A</span>`;
 
-                row.className = rowClass;
                 row.innerHTML = `
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
                             ${status}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm ${tdClass}">${chamado.categoria}</td>
+                    <td class="px-6 py-4 text-sm ${isFinalizado ? 'text-muted' : 'text-secondary'}">${chamado.categoria}</td>
                     <td class="px-6 py-4 text-sm">${glpiHtml}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center space-x-2 justify-center">
-                            <button class="action-button btn-atendimento" data-id="${chamado.id}" data-status="Em atendimento" ${status === 'Em atendimento' || isFinalizado ? 'disabled' : ''}>Em atendimento</button>
-                            <button class="action-button btn-pendente" data-id="${chamado.id}" data-status="Pendente" ${status === 'Pendente' || isFinalizado ? 'disabled' : ''}>Pendente</button>
-                            <button class="action-button btn-solucionado" data-id="${chamado.id}" data-status="Solucionado" ${isFinalizado ? 'disabled' : ''}>Solucionado</button>
+                            <button class="action-button btn-atendimento" data-id="${chamado.id}" data-status="Em atendimento" 
+                                    ${status === 'Em atendimento' || isFinalizado ? 'disabled' : ''}>Em atendimento</button>
+                            <button class="action-button btn-pendente" data-id="${chamado.id}" data-status="Pendente" 
+                                    ${status === 'Pendente' || isFinalizado ? 'disabled' : ''}>Pendente</button>
+                            <button class="action-button btn-solucionado" data-id="${chamado.id}" data-status="Solucionado" 
+                                    ${isFinalizado ? 'disabled' : ''}>Solucionado</button>
                         </div>
                     </td>
                 `;
